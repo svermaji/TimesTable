@@ -2,20 +2,18 @@ package com.sv.timestable;
 
 import com.sv.core.Utils;
 
+import java.util.List;
+
 public final class GameScore {
 
-    private final String score, date, accuracy, level, type;
+    private final String score, date, accuracy;
+    private final List<QuesAns> questions;
 
-    public GameScore(int score, String date, int accuracy, int level, String type) {
-        this(score + "", date, accuracy + "", level + "", type);
-    }
-
-    public GameScore(String score, String date, String accuracy, String level, String type) {
-        this.score = score;
+    public GameScore(int score, String date, int accuracy, List<QuesAns> questions) {
+        this.score = score + "";
         this.date = date;
-        this.accuracy = accuracy;
-        this.level = level;
-        this.type = type;
+        this.accuracy = accuracy + "";
+        this.questions = questions;
     }
 
     public String getScore() {
@@ -35,12 +33,8 @@ public final class GameScore {
         return accuracy;
     }
 
-    public String getLevel() {
-        return level;
-    }
-
-    public String getType() {
-        return type;
+    public List<QuesAns> getQuestions() {
+        return questions;
     }
 
     @Override
@@ -49,16 +43,6 @@ public final class GameScore {
                 "score='" + score + '\'' +
                 ", date='" + date + '\'' +
                 ", accuracy='" + accuracy + '\'' +
-                ", level='" + level + '\'' +
-                ", type='" + type + '\'' +
                 '}';
-    }
-
-    public String shortString() {
-        return "score='" + score + '\'' +
-                        ", date='" + date + '\'' +
-                        ", accuracy='" + accuracy + '\'' +
-                        ", level='" + level + '\'' +
-                        ", type='" + type + '\'';
     }
 }

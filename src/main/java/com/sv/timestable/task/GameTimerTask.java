@@ -1,24 +1,21 @@
 package com.sv.timestable.task;
 
-import com.sv.core.Utils;
+import com.sv.timestable.TimesTable;
 
 import java.util.TimerTask;
 
 public class GameTimerTask extends TimerTask {
 
-    private final com.sv.matchpair.MathPractise mp;
+    private final TimesTable tt;
 
-    public GameTimerTask(com.sv.matchpair.MathPractise mp) {
-        this.mp = mp;
+    public GameTimerTask(TimesTable tt) {
+        this.tt = tt;
     }
 
     @Override
     public void run() {
-        if (mp.isGameStart()) {
-            mp.updateGameTime();
-        }
-        if (mp.isGamePaused()) {
-            mp.performPauseAction();
+        if (tt.isGameStart()) {
+            tt.updateGameTime();
         }
     }
 }

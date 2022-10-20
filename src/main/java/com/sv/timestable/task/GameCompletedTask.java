@@ -1,17 +1,19 @@
 package com.sv.timestable.task;
 
+import com.sv.timestable.TimesTable;
+
 import java.util.TimerTask;
 
 public class GameCompletedTask extends TimerTask {
 
-    private final com.sv.matchpair.MathPractise mp;
+    private final TimesTable tt;
 
-    public GameCompletedTask(com.sv.matchpair.MathPractise mp) {
-        this.mp = mp;
+    public GameCompletedTask(TimesTable tt) {
+        this.tt = tt;
     }
 
     @Override
     public void run() {
-        mp.gameCompletedActions();
+        tt.gameCompletedActions();
     }
 }

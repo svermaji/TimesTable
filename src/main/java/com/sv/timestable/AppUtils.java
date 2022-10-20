@@ -8,7 +8,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class AppUtils {
 
     private static final Map<Integer, List<Integer[]>> gameLevelSequences = new ConcurrentHashMap<>();
-    public static GameButton lastButton;
 
     private AppUtils() {
     }
@@ -25,15 +24,6 @@ public final class AppUtils {
                 gameLevelSequences.put(sum, list);
             }
         });
-    }
-
-    public static Integer[] getRandomGameSeq(GameInfo gi, int[][] gameSequences) {
-        if (gameLevelSequences.isEmpty()) {
-            prepareGameSequences(gameSequences);
-        }
-        List<Integer[]> list = gameLevelSequences.get(gi.getRows() * gi.getCols());
-        Random rand = new Random();
-        return list.get(rand.nextInt(list.size()));
     }
 
     public static Color getColor(String s) {

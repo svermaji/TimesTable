@@ -1,17 +1,19 @@
 package com.sv.timestable.task;
 
+import com.sv.timestable.TimesTable;
+
 import java.util.TimerTask;
 
 public class WaitTimerTask extends TimerTask {
 
-    private final com.sv.matchpair.MathPractise mp;
+    private final TimesTable tt;
 
-    public WaitTimerTask(com.sv.matchpair.MathPractise mp) {
-        this.mp = mp;
+    public WaitTimerTask(TimesTable tt) {
+        this.tt = tt;
     }
 
     @Override
     public void run() {
-        mp.updateWaitTime();
+        tt.updateWaitTime();
     }
 }
