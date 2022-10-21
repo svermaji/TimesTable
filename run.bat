@@ -1,2 +1,2 @@
 rem %1 is to pass additional parameter to mvn cmd like -o for offline
-mvn exec:java -D"exec.mainClass"="com.sv.matchpair.MatchPair" %1
+mvn exec:java -D"exec.mainClass"="com.sv.timestable.TimesTable" %1
