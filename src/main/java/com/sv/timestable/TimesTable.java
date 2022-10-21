@@ -293,7 +293,7 @@ public class TimesTable extends AppFrame {
         lblMultiply = new AppLabel("X");
         lblResult = new AppLabel();
         lblEqual = new AppLabel(EQUAL);
-        txtAnswer = new AppTextField(EMPTY, ANS_MAX_LEN);
+        txtAnswer = new AppTextField(EMPTY, ANS_MAX_LEN * 2);
         txtAnswer.setToolTipText("Hit ENTER to submit answer, ESCAPE to skip the question");
         txtAnswer.addKeyListener(new KeyAdapter() {
             @Override
@@ -664,7 +664,7 @@ public class TimesTable extends AppFrame {
         if (qCtr < gameDetail.getTotalQuestions()) {
             QuesAns qa = gameDetail.getQues(qCtr++);
             currentQues = qa;
-            lblIdx.setText("Que " + qa.getIdx() + ") ");
+            lblIdx.setText("Que " + qa.getIdx() + " # ");
             lblNum1.setText(qa.getNum1() + "");
             lblNum2.setText(qa.getNum2() + "");
             txtAnswer.setText(EMPTY);
@@ -773,6 +773,7 @@ public class TimesTable extends AppFrame {
     public void gameCompletedActions() {
         Arrays.stream(completeGamePanel.getComponents()).forEach(c -> c.setEnabled(true));
         cancelTimers();
+        gameDetail = null;
     }
 
     private void stopGame() {
