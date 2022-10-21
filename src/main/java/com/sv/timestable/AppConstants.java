@@ -17,7 +17,7 @@ public final class AppConstants {
     public static final int GAME_WAIT_TIME_SEC = 3;
     public static final int ALARM_TIME_SEC = 5;
     public static final int GAME_TIME_SEC = 60;
-    public static final int DEFAULT_TABLE_ROWS = 8;
+    public static final int DEFAULT_TABLE_ROWS = 30;
     public static final String GAME_DATA_SEP = Constants.PIPE;
     public static final String GAME_DATA_SEP_FOR_SPLIT = Constants.SLASH + GAME_DATA_SEP;
     public static final String QA_DATA_SEP = Constants.COMMA;

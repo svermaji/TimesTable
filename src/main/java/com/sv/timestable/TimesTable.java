@@ -9,6 +9,7 @@ import com.sv.swingui.component.*;
 import com.sv.swingui.component.table.AppTable;
 import com.sv.swingui.component.table.AppTableHeaderToolTip;
 import com.sv.swingui.component.table.CellRendererCenterAlign;
+import com.sv.swingui.component.table.CellRendererLeftAlign;
 import com.sv.timestable.task.AppFontChangerTask;
 import com.sv.timestable.task.GameCompletedTask;
 import com.sv.timestable.task.GameTimerTask;
@@ -95,7 +96,7 @@ public class TimesTable extends AppFrame {
 
     private final List<Timer> TIMERS = new ArrayList<>();
     private final ColorsNFonts[] APP_COLORS = SwingUtils.getFilteredCnF(false);
-    private final CellRendererCenterAlign CENTER_RENDERER = new CellRendererCenterAlign();
+    private final CellRendererLeftAlign LEFT_RENDERER = new CellRendererLeftAlign();
     private final String TITLE_HEADING = "Controls";
     private final int TIMES = 12, DEFAULT_TIMES = 4, ANS_MAX_LEN = 3,
             TABLE_FROM_MIN = 1, TABLE_FROM_MAX = 30, TABLE_FROM_DEFAULT = 2,
@@ -107,7 +108,7 @@ public class TimesTable extends AppFrame {
     private static int qCtr = 0, gameTime = 0, gameWaitTime = 0;
 
     private GameDetail gameDetail;
-    private List<GameDetail> gameHistory;
+    private Map<String, GameDetail> gameHistory;
     private QuesAns currentQues;
 
     public static void main(String[] args) {
@@ -123,13 +124,13 @@ public class TimesTable extends AppFrame {
      */
     private void initComponents() {
         configs = new DefaultConfigs(logger, Utils.getConfigsAsArr(Configs.class));
-        gameHistory = new ArrayList<>();
+        gameHistory = new TreeMap<>(Comparator.comparing(Integer::valueOf));
         loadConfigValues();
         loadGameHistory();
         logger.setSimpleClassName(true);
         setEchoChar('*');
 
-        CENTER_RENDERER.setShowSameTipOnRow(true);
+        LEFT_RENDERER.setShowSameTipOnRow(true);
 
         List<WindowChecks> windowChecks = new ArrayList<>();
         /*windowChecks.add(WindowChecks.WINDOW_ACTIVE);
@@ -474,18 +475,19 @@ public class TimesTable extends AppFrame {
         }
     }
 
-    private void populateScoreTbl(List<GameDetail> list, DefaultTableModel model, AppTable tbl) {
+    private void populateScoreTbl(Map<String, GameDetail> games, DefaultTableModel model, AppTable tbl) {
         // empty table first
         model.setRowCount(0);
         tbl.emptyRowTooltips();
-        int sz = list.size();
-        for (int i = 0; i < sz; i++) {
-            if (i < AppConstants.DEFAULT_TABLE_ROWS - 1) {
-                GameDetail gd = list.get(i);
-                model.addRow(new String[]{gd.forTable()});
+        AtomicInteger i = new AtomicInteger(0);
+        games.forEach((k, v) -> {
+            if (i.getAndIncrement() < AppConstants.DEFAULT_TABLE_ROWS - 1) {
+                GameDetail gd = v;
+                model.addRow(new String[]{k + ". " + gd.forTable()});
                 tbl.addRowTooltip(new String[]{gd.tooltip()});
             }
-        }
+        });
+        int sz = games.size();
         if (AppConstants.DEFAULT_TABLE_ROWS > sz) {
             int n = AppConstants.DEFAULT_TABLE_ROWS - sz;
             SwingUtils.createEmptyRows(model.getColumnCount(), n, model);
@@ -501,10 +503,10 @@ public class TimesTable extends AppFrame {
         Properties props = Utils.readPropertyFile(AppPaths.scoresLoc.val, logger);
         props.stringPropertyNames().forEach(k -> {
                     String v = props.getProperty(k);
-                    gameHistory.add(extractGameDetail(v));
+                    gameHistory.put(k, extractGameDetail(v));
                 }
         );
-        logger.info("Game history loaded");
+        logger.info("Total [" + gameHistory.size() + "] games loaded in history.");
     }
 
     private GameDetail extractGameDetail(String v) {
@@ -547,7 +549,7 @@ public class TimesTable extends AppFrame {
         tbl.setRowHeight(appFontSize + 4);
         tbl.setBorder(EMPTY_BORDER);
         for (int i = 0; i < model.getColumnCount(); i++) {
-            tbl.getColumnModel().getColumn(i).setCellRenderer(CENTER_RENDERER);
+            tbl.getColumnModel().getColumn(i).setCellRenderer(LEFT_RENDERER);
         }
     }
 
@@ -844,14 +846,15 @@ public class TimesTable extends AppFrame {
     private void saveGameInHistory() {
         if (gameDetail != null) {
             logger.info("Saving game in history as " + gameDetail.detail());
-            gameHistory.add(gameDetail);
+            gameHistory.put((gameHistory.size() + 1) + "", gameDetail);
             if (gameHistory.size() > HISTORY_LIMIT) {
                 gameHistory.remove(0);
             }
             Properties prop = new Properties();
+            // re-indexing history
             AtomicInteger idx = new AtomicInteger(1);
-            gameHistory.forEach(g ->
-                    prop.setProperty(idx.getAndIncrement() + "", prepareScoreCsv(g)));
+            gameHistory.forEach((k, v) ->
+                    prop.setProperty(idx.getAndIncrement() + "", prepareScoreCsv(v)));
             Utils.saveProperties(prop, AppPaths.scoresLoc.val, logger);
         }
     }
