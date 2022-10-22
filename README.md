@@ -28,4 +28,4 @@
 
 #### Application Images
 * Application Home screen<br>
-![Image of Yaktocat](https://github.com/svermaji/MatchPair/blob/master/app-images/app-image-home-22-oct-2022.png)
+![Image of Yaktocat](https://github.com/svermaji/TimesTable/blob/master/app-images/app-image-home-22-oct-2022.png)
