@@ -19,15 +19,13 @@
 
 ## Description
 * It's a GAME !!!
+* User can select to practice times tables
+* User can select table range between 1 and 30 to practice
+* Game will run for 1 minute and checks for correct/wrong/not-answered replies
+* User can set how many question he wants to practice in a minute
+* Latest 30 scores will be visible in history
+* User can Start/Stop game any time; On Stopping game will not counted
 
 #### Application Images
-* Application Game screen - Characters - TBC<br>
-![Image of Yaktocat](https://github.com/svermaji/MatchPair/blob/master/app-images/app-image-18-dec-2021-chars.png)
-* Application Game screen - Symbols<br>
-![Image of Yaktocat](https://github.com/svermaji/MatchPair/blob/master/app-images/app-image-18-dec-2021-symbols.png)
-* Application Game screen - Smileys<br>
-![Image of Yaktocat](https://github.com/svermaji/MatchPair/blob/master/app-images/app-image-18-dec-2021-smileys.png)
 * Application Home screen<br>
-![Image of Yaktocat](https://github.com/svermaji/MatchPair/blob/master/app-images/app-image-home-15-dec-2021.png)
-* Application Graph screen<br>
-![Image of Yaktocat](https://github.com/svermaji/MatchPair/blob/master/app-images/app-image-graph-15-dec-2021.png)
+![Image of Yaktocat](https://github.com/svermaji/MatchPair/blob/master/app-images/app-image-home-22-oct-2022.png)
