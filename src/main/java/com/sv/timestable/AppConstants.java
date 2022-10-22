@@ -24,12 +24,4 @@ public final class AppConstants {
     public static final String QA_SEP = Constants.SEMI_COLON;
     public static final String QA_SEP_FOR_SPLIT = Constants.SLASH + QA_SEP;
     public static final String QA_DATA_SEP_FOR_SPLIT = Constants.SLASH + QA_DATA_SEP;
-    public static final String PROP_SCORES_SUFFIX = "-scores";
-    public static final String PRM_NAME_ACTION = "action";
-    public static final String PRM_VAL_NOPWD = "no-pwd";
-    public static final String PRM_NOPWD_ACTION = "no-pwd";
-    public static final String PRM_VAL_DELUSER = "delete-user";
-
-    public static final Color GAME_BTN_COLOR = Color.white;
-    public static final Color GAME_BTN_CLICK_COLOR = new Color(255, 228, 181);
 }

@@ -124,7 +124,6 @@ public class TimesTable extends AppFrame {
      */
     private void initComponents() {
         configs = new DefaultConfigs(logger, Utils.getConfigsAsArr(Configs.class));
-        gameHistory = new TreeMap<>(Comparator.comparing(Integer::valueOf));
         loadConfigValues();
         loadGameHistory();
         logger.setSimpleClassName(true);
@@ -224,7 +223,7 @@ public class TimesTable extends AppFrame {
         Arrays.stream(lbls).forEach(l -> l.setHorizontalAlignment(SwingConstants.CENTER));
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tblPanel, gamePanel);
         splitPane.setOneTouchExpandable(true);
-        splitPane.setResizeWeight(0.01);
+        splitPane.setResizeWeight(0.2);
         splitPane.setContinuousLayout(true);
         splitPane.setDividerLocation(-1);
         centerPanel.add(splitPane, BorderLayout.CENTER);
@@ -371,7 +370,11 @@ public class TimesTable extends AppFrame {
     }
 
     private void submitAns() {
-        currentQues.setUserAns(Utils.convertToInt(txtAnswer.getText()));
+        int sc = QuesAns.VAL_TO_IGNORE;
+        if (Utils.hasValue(txtAnswer.getText())) {
+            sc = Utils.convertToInt(txtAnswer.getText());
+        }
+        currentQues.setUserAns(sc);
         showNextQue();
     }
 
@@ -481,10 +484,9 @@ public class TimesTable extends AppFrame {
         tbl.emptyRowTooltips();
         AtomicInteger i = new AtomicInteger(0);
         games.forEach((k, v) -> {
-            if (i.getAndIncrement() < AppConstants.DEFAULT_TABLE_ROWS - 1) {
-                GameDetail gd = v;
-                model.addRow(new String[]{k + ". " + gd.forTable()});
-                tbl.addRowTooltip(new String[]{gd.tooltip()});
+            if (i.getAndIncrement() <= AppConstants.DEFAULT_TABLE_ROWS) {
+                model.addRow(new String[]{k + ". " + v.forTable()});
+                tbl.addRowTooltip(new String[]{v.tooltip()});
             }
         });
         int sz = games.size();
@@ -500,6 +502,8 @@ public class TimesTable extends AppFrame {
     }
 
     private void loadGameHistory() {
+        gameHistory = new TreeMap<>(Collections.reverseOrder(Comparator.comparing(Integer::valueOf)));
+//        gameHistory = new TreeMap<>(Comparator.comparing(Integer::valueOf));
         Properties props = Utils.readPropertyFile(AppPaths.scoresLoc.val, logger);
         props.stringPropertyNames().forEach(k -> {
                     String v = props.getProperty(k);
@@ -762,6 +766,8 @@ public class TimesTable extends AppFrame {
         enableControls();
         // to optimize this can be saved on exit but for now saving game progress on complete
         saveGameInHistory();
+        //refreshing game history map
+        loadGameHistory();
         loadTableData();
         gameStatus = Status.STOP;
 
@@ -847,14 +853,23 @@ public class TimesTable extends AppFrame {
         if (gameDetail != null) {
             logger.info("Saving game in history as " + gameDetail.detail());
             gameHistory.put((gameHistory.size() + 1) + "", gameDetail);
+            int sz = gameHistory.size();
             if (gameHistory.size() > HISTORY_LIMIT) {
-                gameHistory.remove(0);
+                gameHistory.remove("1");
+                Map<String, GameDetail> tempGameHistory = new TreeMap<>(Collections.reverseOrder(Comparator.comparing(Integer::valueOf)));
+                tempGameHistory.putAll(gameHistory);
+                gameHistory.clear();
+                for (int i = 1; i < sz; i++) {
+                    GameDetail gd = tempGameHistory.get((i + 1) + "");
+                    if (gd != null) {
+                        gameHistory.put(i + "", gd);
+                    }
+                }
             }
             Properties prop = new Properties();
-            // re-indexing history
-            AtomicInteger idx = new AtomicInteger(1);
-            gameHistory.forEach((k, v) ->
-                    prop.setProperty(idx.getAndIncrement() + "", prepareScoreCsv(v)));
+            gameHistory.forEach((k, v) -> {
+                prop.setProperty(k, prepareScoreCsv(v));
+            });
             Utils.saveProperties(prop, AppPaths.scoresLoc.val, logger);
         }
     }
