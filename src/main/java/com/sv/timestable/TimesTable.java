@@ -468,12 +468,7 @@ public class TimesTable extends AppFrame {
         tblHistory = new AppTable(historyModel);
         tblHistory.setTableHeader(new AppTableHeaderToolTip(tblHistory.getColumnModel(), historyCols));
 
-        // to hide first column
-        TableColumn colIdx = tblHistory.getColumnModel().getColumn(0);
-        if (colIdx != null) {
-            colIdx.setMinWidth(-1);
-            colIdx.setMaxWidth(-1);
-        }
+        tblHistory.hideFirstColumn();
 
         tblHistory.addDblClickOnRow(this, null);
         // sets the popup menu for the table
