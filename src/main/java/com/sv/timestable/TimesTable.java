@@ -526,7 +526,9 @@ public class TimesTable extends AppFrame {
     private void createGDTableRows(GameDetail gd) {
         gameDetailsModel.setRowCount(0);
         gd.getQuesAns().forEach(q -> {
-            gameDetailsModel.addRow(new Object[]{getQStr(q), q.getUserAns() + "", q.getStatus() + SPACE});
+            gameDetailsModel.addRow(new Object[]{getQStr(q),
+                    q.getUserAns() == -1 ? DASH : q.getUserAns() + "",
+                    q.getStatus() + SPACE});
         });
     }
 
