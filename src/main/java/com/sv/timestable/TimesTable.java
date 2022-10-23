@@ -267,6 +267,7 @@ public class TimesTable extends AppFrame {
 
         componentsToAddLine = new JComponent[]{btnStart, lblTime,
                 menuBar, menu, btnExit, tblHistory.getTableHeader(),
+                tblGameDetails.getTableHeader(),
                 tblRngPanel, totalQPanel
         };
         componentsToColor = new JComponent[]{btnStart, lblTime,
@@ -520,15 +521,17 @@ public class TimesTable extends AppFrame {
         jd.setTitle(gd.forTable());
         jd.setContentPane(tblGDPanel);
         tblGameDetails.setPreferredScrollableViewportSize(tblGameDetails.getPreferredSize());
+        // setting last column width to show larger text
+        tblGameDetails.getColumnModel().getColumn(2).setPreferredWidth(100);
         jd.pack();
-        jd.setLocationRelativeTo(null);
+        jd.setLocationRelativeTo(this);
         jd.setVisible(true);
     }
 
     private void createGDTableRows(GameDetail gd) {
         gameDetailsModel.setRowCount(0);
         gd.getQuesAns().forEach(q -> {
-            gameDetailsModel.addRow(new Object[]{getQStr(q), q.getUserAns() + "", getQStatus(q)});
+            gameDetailsModel.addRow(new Object[]{getQStr(q), q.getUserAns() + "", q.getStatus() + SPACE});
         });
     }
 
@@ -541,14 +544,6 @@ public class TimesTable extends AppFrame {
         }
         return ii;
     }*/
-
-    private String getQStatus(QuesAns q) {
-        String ans = AppPaths.notAnswered.val;
-        if (!q.isQNotAnswered()) {
-            ans = q.isCorrectAns() ? AppPaths.correctAns.val : AppPaths.wrongAns.val;
-        }
-        return ans;
-    }
 
     private String getQStr(QuesAns q) {
         return q.getIdx() + ")  " + q.getNum1() + Constants.SPACE
@@ -692,7 +687,7 @@ public class TimesTable extends AppFrame {
                 SwingUtils.applyTooltipColorNFont(c, bg, fg, SwingUtils.getNewFont(c.getFont(), fontName)));
 
         gamePanel.setBorder(SwingUtils.createLineBorder(hbg, 10));
-        AppTable[] tbls = {tblHistory};
+        AppTable[] tbls = {tblHistory, tblGameDetails};
         Arrays.stream(tbls).forEach(t -> t.setRowHeight(appFontSize + 4));
         Arrays.stream(tbls).forEach(t ->
                 SwingUtils.applyTooltipColorNFontAllChild(t, fg, bg,
