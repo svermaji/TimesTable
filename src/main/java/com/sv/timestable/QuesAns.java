@@ -49,12 +49,19 @@ public final class QuesAns {
         }
     }
 
+    public String getOpr() {
+        return opr;
+    }
+
     public String getStatus() {
         return status;
     }
 
     public boolean isCorrectAns() {
         return status.equals(AnsStatus.correct.val);
+    }
+    public boolean isQNotAnswered() {
+        return status.equals(AnsStatus.notAnswered.val);
     }
 
     @Override

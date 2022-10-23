@@ -1,5 +1,6 @@
 package com.sv.timestable;
 
+import com.sv.core.Constants;
 import com.sv.core.Utils;
 import com.sv.core.config.DefaultConfigs;
 import com.sv.swingui.KeyActionDetails;
@@ -8,7 +9,6 @@ import com.sv.swingui.UIConstants;
 import com.sv.swingui.component.*;
 import com.sv.swingui.component.table.AppTable;
 import com.sv.swingui.component.table.AppTableHeaderToolTip;
-import com.sv.swingui.component.table.CellRendererCenterAlign;
 import com.sv.swingui.component.table.CellRendererLeftAlign;
 import com.sv.timestable.task.AppFontChangerTask;
 import com.sv.timestable.task.GameCompletedTask;
@@ -19,6 +19,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -65,10 +66,11 @@ public class TimesTable extends AppFrame {
     private AppLabel lblTime, lblWaitTime, lblTblRange, lblDash, lblQuestions,
             lblIdx, lblNum1, lblNum2, lblMultiply, lblEqual, lblResult;
     private AppComboBox cbTblFrom, cbTblTo, cbQuestions;
-    private AppTable tblRecentScore;
-    private DefaultTableModel recentScoreModel;
+    private AppTable tblHistory, tblGameDetails;
+    private DefaultTableModel historyModel, gameDetailsModel;
 
     public enum AppPaths {
+        notAnswered("./icons/no-ans-icon.png"),
         correctAns("./icons/correct-ans-icon.png"),
         wrongAns("./icons/wrong-ans-icon.png"),
         scoresLoc("./src/main/resources/scores.config"),
@@ -83,7 +85,7 @@ public class TimesTable extends AppFrame {
 
     private AppPanel topPanel, centerPanel, gamePanel,
             completeGamePanel, gameButtonsPanel, questionPanel,
-            waitPanel, waitLabelsPanel, tblPanel, helpPanel, tblRngPanel, totalQPanel;
+            waitPanel, waitLabelsPanel, tblHistoryPanel, tblGDPanel, helpPanel, tblRngPanel, totalQPanel;
     private JScrollPane jspHelp;
     private JSplitPane splitPane;
     private JComponent[] componentsToColor, componentsToAddLine;
@@ -214,6 +216,7 @@ public class TimesTable extends AppFrame {
         prepareWaitScreen();
         setupHelp();
         setAllTables();
+        setGameDetailTable();
 
         gamePanel.add(helpPanel);
         gamePanel.add(waitPanel);
@@ -221,7 +224,7 @@ public class TimesTable extends AppFrame {
 
         AppLabel[] lbls = {lblWaitTime, lblTime};
         Arrays.stream(lbls).forEach(l -> l.setHorizontalAlignment(SwingConstants.CENTER));
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tblPanel, gamePanel);
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tblHistoryPanel, gamePanel);
         splitPane.setOneTouchExpandable(true);
         splitPane.setResizeWeight(0.2);
         splitPane.setContinuousLayout(true);
@@ -263,11 +266,12 @@ public class TimesTable extends AppFrame {
         SwingUtils.updateUIFor(menuBar);
 
         componentsToAddLine = new JComponent[]{btnStart, lblTime,
-                menuBar, menu, btnExit, tblRecentScore.getTableHeader(),
+                menuBar, menu, btnExit, tblHistory.getTableHeader(),
                 tblRngPanel, totalQPanel
         };
         componentsToColor = new JComponent[]{btnStart, lblTime,
-                menuBar, menu, btnExit, tblRecentScore.getTableHeader(),
+                menuBar, menu, btnExit, tblHistory.getTableHeader(),
+                tblGameDetails.getTableHeader(),
                 tblRngPanel, totalQPanel,
                 lblTblRange, cbTblFrom,
                 lblDash, cbTblTo, lblQuestions, cbQuestions
@@ -457,25 +461,98 @@ public class TimesTable extends AppFrame {
     }
 
     private void setAllTables() {
-        String[] recentScoreCols = new String[]{"History"};
+        String[] historyCols = new String[]{"#", "History"};
 
-        recentScoreModel = SwingUtils.getTableModel(recentScoreCols);
-        tblRecentScore = new AppTable(recentScoreModel);
-        tblRecentScore.setTableHeader(new AppTableHeaderToolTip(tblRecentScore.getColumnModel(), recentScoreCols));
+        historyModel = SwingUtils.getTableModel(historyCols);
+        tblHistory = new AppTable(historyModel);
+        tblHistory.setTableHeader(new AppTableHeaderToolTip(tblHistory.getColumnModel(), historyCols));
 
+        // to hide first column
+        TableColumn colIdx = tblHistory.getColumnModel().getColumn(0);
+        if (colIdx != null) {
+            colIdx.setMinWidth(-1);
+            colIdx.setMaxWidth(-1);
+        }
+
+        tblHistory.addDblClickOnRow(this, null);
         // sets the popup menu for the table
-        setTable(tblRecentScore, recentScoreModel);
-        loadTableData();
+        setTable(tblHistory, historyModel);
+        loadHistoryTable();
 
-        tblPanel = new AppPanel(new GridLayout(1, 1));
-        tblPanel.add(new JScrollPane(tblRecentScore));
-        tblPanel.setBorder(EMPTY_BORDER);
+        tblHistoryPanel = new AppPanel(new GridLayout(1, 1));
+        tblHistoryPanel.add(new JScrollPane(tblHistory));
+        tblHistoryPanel.setBorder(EMPTY_BORDER);
     }
 
-    private void loadTableData() {
+    private void loadHistoryTable() {
         if (gameHistory.size() > 0) {
-            populateScoreTbl(gameHistory, recentScoreModel, tblRecentScore);
+            populateScoreTbl(gameHistory, historyModel, tblHistory);
         }
+    }
+
+    // This will be called by reflection from SwingUI jar
+    public void handleDblClickOnRow(AppTable table, Object[] params) {
+        GameDetail gd = gameHistory.get(table.getValueAt(table.getSelectedRow(), 0).toString());
+        if (gd != null) {
+            showGameDetailTable(gd);
+        }
+    }
+
+    private void setGameDetailTable() {
+        String[] gdCols = new String[]{"Question", "Answer", "Status"};
+
+        gameDetailsModel = SwingUtils.getTableModel(gdCols);
+        tblGameDetails = new AppTable(gameDetailsModel);
+        tblGameDetails.setTableHeader(new AppTableHeaderToolTip(tblGameDetails.getColumnModel(), gdCols));
+
+        // sets the popup menu for the table
+        setTable(tblGameDetails, gameDetailsModel);
+
+        tblGDPanel = new AppPanel(new GridLayout(1, 1));
+        tblGDPanel.add(new JScrollPane(tblGameDetails));
+        tblGDPanel.setBorder(EMPTY_BORDER);
+    }
+
+    private void showGameDetailTable(GameDetail gd) {
+        JDialog jd = new JDialog();
+        jd.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+        createGDTableRows(gd);
+        jd.setTitle(gd.forTable());
+        jd.setContentPane(tblGDPanel);
+        tblGameDetails.setPreferredScrollableViewportSize(tblGameDetails.getPreferredSize());
+        jd.pack();
+        jd.setLocationRelativeTo(null);
+        jd.setVisible(true);
+    }
+
+    private void createGDTableRows(GameDetail gd) {
+        gameDetailsModel.setRowCount(0);
+        gd.getQuesAns().forEach(q -> {
+            gameDetailsModel.addRow(new Object[]{getQStr(q), q.getUserAns() + "", getQStatus(q)});
+        });
+    }
+
+    // need to change table model for this column
+    /*private ImageIcon getQStatus(QuesAns q) {
+        ImageIcon ii = new ImageIcon(AppPaths.notAnswered.val);
+        ii.setDescription(q.getStatus());
+        if (!q.isQNotAnswered()) {
+            ii = new ImageIcon(q.isCorrectAns() ? AppPaths.correctAns.val : AppPaths.wrongAns.val);
+        }
+        return ii;
+    }*/
+
+    private String getQStatus(QuesAns q) {
+        String ans = AppPaths.notAnswered.val;
+        if (!q.isQNotAnswered()) {
+            ans = q.isCorrectAns() ? AppPaths.correctAns.val : AppPaths.wrongAns.val;
+        }
+        return ans;
+    }
+
+    private String getQStr(QuesAns q) {
+        return q.getIdx() + ")  " + q.getNum1() + Constants.SPACE
+                + q.getOpr() + Constants.SPACE + q.getNum2();
     }
 
     private void populateScoreTbl(Map<String, GameDetail> games, DefaultTableModel model, AppTable tbl) {
@@ -485,7 +562,8 @@ public class TimesTable extends AppFrame {
         AtomicInteger i = new AtomicInteger(0);
         games.forEach((k, v) -> {
             if (i.getAndIncrement() <= AppConstants.DEFAULT_TABLE_ROWS) {
-                model.addRow(new String[]{k + ". " + v.forTable()});
+                String kk = k + "";
+                model.addRow(new String[]{kk, kk + ". " + v.forTable()});
                 tbl.addRowTooltip(new String[]{v.tooltip()});
             }
         });
@@ -503,7 +581,6 @@ public class TimesTable extends AppFrame {
 
     private void loadGameHistory() {
         gameHistory = new TreeMap<>(Collections.reverseOrder(Comparator.comparing(Integer::valueOf)));
-//        gameHistory = new TreeMap<>(Comparator.comparing(Integer::valueOf));
         Properties props = Utils.readPropertyFile(AppPaths.scoresLoc.val, logger);
         props.stringPropertyNames().forEach(k -> {
                     String v = props.getProperty(k);
@@ -615,7 +692,7 @@ public class TimesTable extends AppFrame {
                 SwingUtils.applyTooltipColorNFont(c, bg, fg, SwingUtils.getNewFont(c.getFont(), fontName)));
 
         gamePanel.setBorder(SwingUtils.createLineBorder(hbg, 10));
-        AppTable[] tbls = {tblRecentScore};
+        AppTable[] tbls = {tblHistory};
         Arrays.stream(tbls).forEach(t -> t.setRowHeight(appFontSize + 4));
         Arrays.stream(tbls).forEach(t ->
                 SwingUtils.applyTooltipColorNFontAllChild(t, fg, bg,
@@ -670,7 +747,7 @@ public class TimesTable extends AppFrame {
         if (qCtr < gameDetail.getTotalQuestions()) {
             QuesAns qa = gameDetail.getQues(qCtr++);
             currentQues = qa;
-            lblIdx.setText("Que " + qa.getIdx() + " # ");
+            lblIdx.setText("Que " + qa.getIdx() + SP_DASH_SP);
             lblNum1.setText(qa.getNum1() + "");
             lblNum2.setText(qa.getNum2() + "");
             txtAnswer.setText(EMPTY);
@@ -768,7 +845,7 @@ public class TimesTable extends AppFrame {
         saveGameInHistory();
         //refreshing game history map
         loadGameHistory();
-        loadTableData();
+        loadHistoryTable();
         gameStatus = Status.STOP;
 
         Arrays.stream(completeGamePanel.getComponents()).forEach(c -> c.setEnabled(false));
@@ -820,7 +897,7 @@ public class TimesTable extends AppFrame {
 
     private void storeAndLoad() {
         // reload tooltips for new data
-        loadTableData();
+        loadHistoryTable();
     }
 
     private void startGame() {

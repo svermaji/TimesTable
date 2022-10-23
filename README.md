@@ -25,7 +25,11 @@
 * User can set how many question he wants to practice in a minute
 * Latest 30 scores will be visible in history
 * User can Start/Stop game any time; On Stopping game will not counted
+* User can view details of a game by double-clicking on history row
 
 #### Application Images
 * Application Home screen<br>
 ![Image of Yaktocat](https://github.com/svermaji/TimesTable/blob/master/app-images/app-image-home-22-oct-2022.png)
+* 
+* Application Game Details screen<br>
+![Image of Yaktocat](https://github.com/svermaji/TimesTable/blob/master/app-images/app-image-details-23-oct-2022.png)

@@ -87,6 +87,6 @@ public final class GameDetail {
 
     public String tooltip() {
         return "On " + date +
-                ", click for details";
+                ", double click for details";
     }
 }
