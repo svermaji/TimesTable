@@ -24,8 +24,8 @@
 * Game will run for 1 minute and checks for correct/wrong/not-answered replies
 * User can set how many question he wants to practice in a minute
 * Latest 30 scores will be visible in history
-* User can Start/Stop game any time; On Stopping game will not counted
-* User can view details of a game by double-clicking on history row
+* User can Start/Stop game any time; On Stopping game will not be counted
+* User can view details of a game by double-clicking on history row in a colorful way
 
 #### Application Images
 * Application Home screen<br>
