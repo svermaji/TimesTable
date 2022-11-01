@@ -32,4 +32,4 @@
 ![Image of Yaktocat](https://github.com/svermaji/TimesTable/blob/master/app-images/app-image-home-22-oct-2022.png)
 * 
 * Application Game Details screen<br>
-![Image of Yaktocat](https://github.com/svermaji/TimesTable/blob/master/app-images/app-image-details-23-oct-2022.png)
+![Image of Yaktocat](https://github.com/svermaji/TimesTable/blob/master/app-images/app-image-details-1-nov-2022.png)
