@@ -496,10 +496,15 @@ public class TimesTable extends AppFrame {
 
     private void setGameDetailTable() {
         String[] gdCols = new String[]{"Question", "Answer", "Status"};
+        int[] colSize = new int[]{200, 150, 200};
 
         gameDetailsModel = SwingUtils.getTableModel(gdCols);
         tblGameDetails = new AppTable(gameDetailsModel);
         tblGameDetails.setTableHeader(new AppTableHeaderToolTip(tblGameDetails.getColumnModel(), gdCols));
+
+        for (int i = 0; i < colSize.length; i++) {
+            tblGameDetails.getColumnModel().getColumn(i).setMinWidth(colSize[i]);
+        }
 
         // sets the popup menu for the table
         setTable(tblGameDetails, gameDetailsModel);
@@ -514,16 +519,20 @@ public class TimesTable extends AppFrame {
         jd.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
         createGDTableRows(gd);
         jd.setTitle(gd.forTable());
-        jd.setContentPane(tblGDPanel);
-        tblGameDetails.setPreferredScrollableViewportSize(tblGameDetails.getPreferredSize());
-        // setting last column width to show larger text
-        tblGameDetails.getColumnModel().getColumn(2).setPreferredWidth(100);
+        jd.setContentPane(new JScrollPane(tblGDPanel));
+        //tblGameDetails.setPreferredScrollableViewportSize(tblGameDetails.getPreferredSize());
+        jd.setMinimumSize(new Dimension((int) (this.getWidth() * 0.5),
+                (int) (this.getHeight() * 0.3)));
+        jd.setMaximumSize(new Dimension((int) (this.getWidth() * 0.5),
+                (int) (this.getHeight() * 0.75)));
+        jd.setPreferredSize(jd.getMinimumSize());
         jd.pack();
         jd.setLocationRelativeTo(this);
         jd.setVisible(true);
     }
 
     private void createGDTableRows(GameDetail gd) {
+        tblGameDetails.emptyRowTooltips();
         gameDetailsModel.setRowCount(0);
         gd.getQuesAns().forEach(q -> {
             gameDetailsModel.addRow(new Object[]{getQStr(q),
@@ -629,7 +638,8 @@ public class TimesTable extends AppFrame {
     public void changeAppFont() {
         SwingUtils.applyAppFont(this, appFontSize, this, logger);
         // might be as these are hidden at start
-        JComponent[] arr = {waitPanel, gameButtonsPanel, questionPanel};
+        JComponent[] arr = {waitPanel, gameButtonsPanel, questionPanel, tblGameDetails,
+                tblGameDetails.getTableHeader()};
         Arrays.stream(arr).forEach(a ->
                 SwingUtils.applyAppFont(a, appFontSize, this, logger));
         /*SwingUtils.applyAppFont(txtAnswer, appFontSize, this, logger);*/
