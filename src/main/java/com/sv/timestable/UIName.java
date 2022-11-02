@@ -12,7 +12,7 @@ public enum UIName {
     LBL_TIME("Time", 'm', "Time remaining of the game"),
     LBL_QUESTIONS("Questions", 'q', "How many questions in a minute"),
     LBL_TBLRANGE("Tables", 's', "Tables range for questions."),
-    MENU("Settings", 'g', "Different system settings"),
+    SETTINGS_MENU("Settings", 'g', "Different system settings"),
     BTN_HISTORY("History", 'y', "Scores history"),
     MI_HELP("Help", 'h', "Help about game"),
     MI_HELP_BROWSER("Help in browser", 'w', "Open help in browser");

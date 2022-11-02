@@ -19,7 +19,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -44,7 +43,7 @@ public class TimesTable extends AppFrame {
      * e.g. if enum is Xyz then when storing getXyz will be called
      */
     public enum Configs {
-        AppFontSize, CNFIdx, TablesFrom, TablesTo, TotalQuestions
+        AppFontSize, CNFIdx, TablesFrom, TablesTo, TotalQuestions, SoundOnError
     }
 
     public enum Status {
@@ -62,6 +61,7 @@ public class TimesTable extends AppFrame {
     }
 
     private AppButton btnStart, btnExit;
+    private AppCheckBoxMenuItem jcbmiSoundOnError;
     private AppTextField txtAnswer;
     private AppLabel lblTime, lblWaitTime, lblTblRange, lblDash, lblQuestions,
             lblIdx, lblNum1, lblNum2, lblMultiply, lblEqual, lblResult;
@@ -160,6 +160,11 @@ public class TimesTable extends AppFrame {
         UIName uin = UIName.BTN_START;
         btnStart = new AppButton(uin.name, uin.mnemonic, uin.tip);
         btnStart.addActionListener(e -> startGame());
+        jcbmiSoundOnError = new AppCheckBoxMenuItem(
+                "Sound On Error",
+                configs.getBooleanConfig(Configs.SoundOnError.name()),
+                'o',
+                "If user answer is wrong, a sound will be played");
         uin = UIName.LBL_TIME;
         lblTime = new AppLabel(uin.name, uin.mnemonic, uin.tip);
         cbTblFrom = new AppComboBox(Utils.createIntArr(TABLE_FROM_MIN, TABLE_FROM_MAX),
@@ -239,7 +244,7 @@ public class TimesTable extends AppFrame {
         SwingUtils.getInFocus(btnStart);
         storeAndLoad();
 
-        uin = UIName.MENU;
+        uin = UIName.SETTINGS_MENU;
         menu = new AppMenu(uin.name, uin.mnemonic, uin.tip) {
             @Override
             public Dimension getPreferredSize() {
@@ -253,6 +258,8 @@ public class TimesTable extends AppFrame {
         menu.add(SwingUtils.getColorsMenu(true, true,
                 true, true, false, this, logger));
         menu.add(SwingUtils.getAppFontMenu(this, this, appFontSize, logger));
+        menu.addSeparator();
+        menu.add(jcbmiSoundOnError);
         menu.addSeparator();
         uin = UIName.MI_HELP;
         AppMenuItem miHelp = new AppMenuItem(uin.name, uin.mnemonic, uin.tip);
@@ -381,7 +388,7 @@ public class TimesTable extends AppFrame {
             sc = Utils.convertToInt(txtAnswer.getText());
         }
         currentQues.setUserAns(sc);
-        if (!currentQues.isCorrectAns()) {
+        if (jcbmiSoundOnError.isSelected() && !currentQues.isCorrectAns()) {
             SwingUtils.playAudioFile(AppPaths.errorAudioLoc.val);
         }
         showNextQue();
@@ -1028,5 +1035,9 @@ public class TimesTable extends AppFrame {
 
     public String getTotalQuestions() {
         return totalQuestions + "";
+    }
+
+    public String getSoundOnError() {
+        return jcbmiSoundOnError.isSelected() + "";
     }
 }

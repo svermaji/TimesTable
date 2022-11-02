@@ -27,7 +27,7 @@
 * User can Start/Stop game any time; On Stopping game will not be counted
 * User can view details of a game by double-clicking on history row in a colorful way
 * Font changes will apply only on tables. Rows will be in alternate colors and row will highlight on mouseover
-* Sound will be played if ans is wrong.
+* Sound will be played if ans is wrong. It is configurable from Settings menu.
 
 #### Application Images
 * Application Home screen<br>
