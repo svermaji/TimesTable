@@ -73,6 +73,7 @@ public class TimesTable extends AppFrame {
         notAnswered("./icons/no-ans-icon.png"),
         correctAns("./icons/correct-ans-icon.png"),
         wrongAns("./icons/wrong-ans-icon.png"),
+        errorAudioLoc("./src/main/resources/error-sound.wav"),
         scoresLoc("./src/main/resources/scores.config"),
         openHelpLoc("./src/main/resources/show-help.bat");
 
@@ -380,6 +381,9 @@ public class TimesTable extends AppFrame {
             sc = Utils.convertToInt(txtAnswer.getText());
         }
         currentQues.setUserAns(sc);
+        if (!currentQues.isCorrectAns()) {
+            SwingUtils.playAudioFile(AppPaths.errorAudioLoc.val);
+        }
         showNextQue();
     }
 
@@ -521,11 +525,10 @@ public class TimesTable extends AppFrame {
         jd.setTitle(gd.forTable());
         jd.setContentPane(new JScrollPane(tblGDPanel));
         //tblGameDetails.setPreferredScrollableViewportSize(tblGameDetails.getPreferredSize());
-        jd.setMinimumSize(new Dimension((int) (this.getWidth() * 0.5),
-                (int) (this.getHeight() * 0.3)));
-        jd.setMaximumSize(new Dimension((int) (this.getWidth() * 0.5),
-                (int) (this.getHeight() * 0.75)));
-        jd.setPreferredSize(jd.getMinimumSize());
+        int w = (int) (this.getWidth() * 0.5);
+        int h = (int) (this.getHeight() * (gd.getTotalQuestions() < 10 ? 0.3 : 0.7));
+        jd.setMinimumSize(new Dimension(w, h));
+        jd.setMaximumSize(new Dimension(w, h));
         jd.pack();
         jd.setLocationRelativeTo(this);
         jd.setVisible(true);
@@ -705,6 +708,10 @@ public class TimesTable extends AppFrame {
         Arrays.stream(arr).forEach(a ->
                 SwingUtils.applyTooltipColorNFontAllChild(a, fg, bg,
                         SwingUtils.getNewFontSize(a.getFont(), appFontSize)));
+
+        // Change font only of desired component bcoz it looks very odd
+        // if menus font is changes
+        Arrays.stream(tbls).forEach(t -> SwingUtils.changeFont(t, fontName));
     }
 
     private void startNewGame() {

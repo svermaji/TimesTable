@@ -26,10 +26,12 @@
 * Latest 30 scores will be visible in history
 * User can Start/Stop game any time; On Stopping game will not be counted
 * User can view details of a game by double-clicking on history row in a colorful way
+* Font changes will apply only on tables. Rows will be in alternate colors and row will highlight on mouseover
+* Sound will be played if ans is wrong.
 
 #### Application Images
 * Application Home screen<br>
-![Image of Yaktocat](https://github.com/svermaji/TimesTable/blob/master/app-images/app-image-home-22-oct-2022.png)
+![Image of Yaktocat](https://github.com/svermaji/TimesTable/blob/master/app-images/app-image-home-2-nov-2022.png)
 * 
 * Application Game Details screen<br>
-![Image of Yaktocat](https://github.com/svermaji/TimesTable/blob/master/app-images/app-image-details-1-nov-2022.png)
+![Image of Yaktocat](https://github.com/svermaji/TimesTable/blob/master/app-images/app-image-details-2-nov-2022.png)
