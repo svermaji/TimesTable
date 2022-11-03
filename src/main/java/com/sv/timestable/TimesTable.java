@@ -260,15 +260,6 @@ public class TimesTable extends AppFrame {
         menu.add(SwingUtils.getAppFontMenu(this, this, appFontSize, logger));
         menu.addSeparator();
         menu.add(jcbmiSoundOnError);
-        menu.addSeparator();
-        uin = UIName.MI_HELP;
-        AppMenuItem miHelp = new AppMenuItem(uin.name, uin.mnemonic, uin.tip);
-        menu.add(miHelp);
-        miHelp.addActionListener(e -> showHelp());
-        uin = UIName.MI_HELP_BROWSER;
-        AppMenuItem miHelpBrowser = new AppMenuItem(uin.name, uin.mnemonic, uin.tip);
-        menu.add(miHelpBrowser);
-        miHelpBrowser.addActionListener(e -> showHelpInBrowser());
         menuBar.add(menu);
 
         SwingUtils.updateUIFor(menuBar);
@@ -445,10 +436,6 @@ public class TimesTable extends AppFrame {
         logger.info("Showing screen for " + Utils.addBraces(nm));
     }
 
-    private void showHelpInBrowser() {
-        //new RunCommand(new String[]{AppPaths.openHelpLoc.val + SPACE + Utils.getCurrentDir()}, logger);
-    }
-
     private void showHelp() {
         showScreen(GameScreens.help);
     }
@@ -548,11 +535,9 @@ public class TimesTable extends AppFrame {
     private void createGDTableRows(GameDetail gd) {
         tblGameDetails.emptyRows();
         tblGameDetails.gotoFirstRow();
-        gd.getQuesAns().forEach(q -> {
-            gameDetailsModel.addRow(new Object[]{getQStr(q),
-                    q.getUserAns() == -1 ? DASH : q.getUserAns() + "",
-                    q.getStatus() + SPACE});
-        });
+        gd.getQuesAns().forEach(q -> gameDetailsModel.addRow(new Object[]{getQStr(q),
+                q.getUserAns() == -1 ? DASH : q.getUserAns() + "",
+                q.getStatus() + SPACE}));
     }
 
     // need to change table model for this column
@@ -964,9 +949,7 @@ public class TimesTable extends AppFrame {
                 }
             }
             Properties prop = new Properties();
-            gameHistory.forEach((k, v) -> {
-                prop.setProperty(k, prepareScoreCsv(v));
-            });
+            gameHistory.forEach((k, v) -> prop.setProperty(k, prepareScoreCsv(v)));
             Utils.saveProperties(prop, AppPaths.scoresLoc.val, logger);
         }
     }
