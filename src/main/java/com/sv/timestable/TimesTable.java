@@ -765,7 +765,7 @@ public class TimesTable extends AppFrame {
             lblNum2.setText(qa.getNum2() + "");
             txtAnswer.setText(EMPTY);
             SwingUtils.getInFocus(txtAnswer);
-            timeQuestionShown = System.currentTimeMillis();
+            timeQuestionShown = Utils.getNowMillis();
         } else {
             gameCompleted();
         }
