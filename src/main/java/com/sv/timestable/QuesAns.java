@@ -3,11 +3,13 @@ package com.sv.timestable;
 public final class QuesAns {
 
     private final int idx, num1, num2, correctAns;
+    private String timeTaken;
     public static final int VAL_TO_IGNORE = -1;
     private int userAns = VAL_TO_IGNORE;
     private final String opr = "x";
 
     private String status = AnsStatus.notAnswered.val;
+
     public enum AnsStatus {
         correct("correct"),
         wrong("wrong"),
@@ -19,6 +21,7 @@ public final class QuesAns {
             this.val = val;
         }
     }
+
     public QuesAns(int idx, int num1, int num2) {
         this.idx = idx;
         this.num1 = num1;
@@ -49,6 +52,14 @@ public final class QuesAns {
         }
     }
 
+    public void setTimeTaken(String timeTaken) {
+        this.timeTaken = timeTaken;
+    }
+
+    public String getTimeTaken() {
+        return timeTaken;
+    }
+
     public String getOpr() {
         return opr;
     }
@@ -60,6 +71,7 @@ public final class QuesAns {
     public boolean isCorrectAns() {
         return status.equals(AnsStatus.correct.val);
     }
+
     public boolean isQNotAnswered() {
         return status.equals(AnsStatus.notAnswered.val);
     }
@@ -70,10 +82,11 @@ public final class QuesAns {
                 "idx=" + idx +
                 ", num1=" + num1 +
                 ", num2=" + num2 +
-                ", userAns=" + userAns +
                 ", correctAns=" + correctAns +
-                ", status=" + status +
+                ", timeTaken=" + timeTaken +
+                ", userAns=" + userAns +
                 ", opr='" + opr + '\'' +
+                ", status='" + status + '\'' +
                 '}';
     }
 }

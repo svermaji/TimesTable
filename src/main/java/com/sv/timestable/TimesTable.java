@@ -67,6 +67,7 @@ public class TimesTable extends AppFrame {
             lblIdx, lblNum1, lblNum2, lblMultiply, lblEqual, lblResult;
     private AppComboBox cbTblFrom, cbTblTo, cbQuestions;
     private AppTable tblHistory, tblGameDetails;
+    private long timeQuestionShown;
     private DefaultTableModel historyModel, gameDetailsModel;
 
     public enum AppPaths {
@@ -379,6 +380,7 @@ public class TimesTable extends AppFrame {
             sc = Utils.convertToInt(txtAnswer.getText());
         }
         currentQues.setUserAns(sc);
+        setTimeTaken(currentQues);
         if (jcbmiSoundOnError.isSelected() && !currentQues.isCorrectAns()) {
             SwingUtils.playAudioFile(AppPaths.errorAudioLoc.val);
         }
@@ -386,7 +388,12 @@ public class TimesTable extends AppFrame {
     }
 
     private void skipQuestion() {
+        setTimeTaken(currentQues);
         showNextQue();
+    }
+
+    private void setTimeTaken(QuesAns currentQues) {
+        currentQues.setTimeTaken(Utils.getTimeDiffSecMilliStr(timeQuestionShown, false));
     }
 
     private void setupHelp() {
@@ -493,8 +500,8 @@ public class TimesTable extends AppFrame {
     }
 
     private void setGameDetailTable() {
-        String[] gdCols = new String[]{"Question", "Answer", "Status"};
-        int[] colSize = new int[]{200, 150, 200};
+        String[] gdCols = new String[]{"Question", "Answer", "Time Taken", "Status"};
+        int[] colSize = new int[]{180, 100, 100, 180};
 
         gameDetailsModel = SwingUtils.getTableModel(gdCols);
         tblGameDetails = new AppTable(gameDetailsModel);
@@ -517,11 +524,11 @@ public class TimesTable extends AppFrame {
         SwingUtils.addEscKeyAction(jd, "escOnGameDetails", this, logger);
         jd.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
         createGDTableRows(gd);
-        jd.setTitle(gd.forTable());
+        jd.setTitle(gd.forTable() +" - ESC to cancel");
         jd.setContentPane(new JScrollPane(tblGDPanel));
         Dimension tps = tblGameDetails.getPreferredSize();
         int tw = Math.min(tps.width, (int) (this.getWidth() * 0.5));
-        int th= Math.min(tps.height, (int) (this.getHeight() * 0.7));
+        int th = Math.min(tps.height, (int) (this.getHeight() * 0.7));
         tblGameDetails.setPreferredScrollableViewportSize(new Dimension(tw, th));
         jd.pack();
         jd.setLocationRelativeTo(this);
@@ -537,7 +544,7 @@ public class TimesTable extends AppFrame {
         tblGameDetails.gotoFirstRow();
         gd.getQuesAns().forEach(q -> gameDetailsModel.addRow(new Object[]{getQStr(q),
                 q.getUserAns() == -1 ? DASH : q.getUserAns() + "",
-                q.getStatus() + SPACE}));
+                q.getTimeTaken(), q.getStatus()}));
     }
 
     // need to change table model for this column
@@ -604,6 +611,7 @@ public class TimesTable extends AppFrame {
                         Utils.convertToInt(qaData[1]),
                         Utils.convertToInt(qaData[2]));
                 q.setUserAns(Utils.convertToInt(qaData[3]));
+                q.setTimeTaken(qaData.length == 5 ? qaData[4] : "");
                 gd.addQues(q);
             });
             return gd;
@@ -757,6 +765,7 @@ public class TimesTable extends AppFrame {
             lblNum2.setText(qa.getNum2() + "");
             txtAnswer.setText(EMPTY);
             SwingUtils.getInFocus(txtAnswer);
+            timeQuestionShown = System.currentTimeMillis();
         } else {
             gameCompleted();
         }
@@ -973,6 +982,8 @@ public class TimesTable extends AppFrame {
                         .append(qa.getNum2())
                         .append(AppConstants.QA_DATA_SEP)
                         .append(qa.getUserAns())
+                        .append(AppConstants.QA_DATA_SEP)
+                        .append(qa.getTimeTaken())
                         .append(AppConstants.QA_SEP));
         return sb.toString();
     }
