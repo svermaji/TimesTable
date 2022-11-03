@@ -527,23 +527,27 @@ public class TimesTable extends AppFrame {
 
     private void showGameDetailTable(GameDetail gd) {
         JDialog jd = new JDialog();
+        SwingUtils.addEscKeyAction(jd, "escOnGameDetails", this, logger);
         jd.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
         createGDTableRows(gd);
         jd.setTitle(gd.forTable());
         jd.setContentPane(new JScrollPane(tblGDPanel));
-        //tblGameDetails.setPreferredScrollableViewportSize(tblGameDetails.getPreferredSize());
-        int w = (int) (this.getWidth() * 0.5);
-        int h = (int) (this.getHeight() * (gd.getTotalQuestions() < 10 ? 0.3 : 0.7));
-        jd.setMinimumSize(new Dimension(w, h));
-        jd.setMaximumSize(new Dimension(w, h));
+        Dimension tps = tblGameDetails.getPreferredSize();
+        int tw = Math.min(tps.width, (int) (this.getWidth() * 0.5));
+        int th= Math.min(tps.height, (int) (this.getHeight() * 0.7));
+        tblGameDetails.setPreferredScrollableViewportSize(new Dimension(tw, th));
         jd.pack();
         jd.setLocationRelativeTo(this);
         jd.setVisible(true);
     }
 
+    public void escOnGameDetails() {
+        // no action
+    }
+
     private void createGDTableRows(GameDetail gd) {
-        tblGameDetails.emptyRowTooltips();
-        gameDetailsModel.setRowCount(0);
+        tblGameDetails.emptyRows();
+        tblGameDetails.gotoFirstRow();
         gd.getQuesAns().forEach(q -> {
             gameDetailsModel.addRow(new Object[]{getQStr(q),
                     q.getUserAns() == -1 ? DASH : q.getUserAns() + "",
