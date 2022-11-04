@@ -112,7 +112,7 @@ public class TimesTable extends AppFrame {
     private static int qCtr = 0, gameTime = 0, gameWaitTime = 0;
 
     private GameDetail gameDetail;
-    private Map<String, GameDetail> gameHistory;
+    private Map<Long, GameDetail> gameHistory;
     private QuesAns currentQues;
 
     public static void main(String[] args) {
@@ -493,7 +493,8 @@ public class TimesTable extends AppFrame {
 
     // This will be called by reflection from SwingUI jar
     public void handleDblClickOnRow(AppTable table, Object[] params) {
-        GameDetail gd = gameHistory.get(table.getValueAt(table.getSelectedRow(), 0).toString());
+        GameDetail gd = gameHistory.get(Utils.convertToLong(
+                table.getValueAt(table.getSelectedRow(), 0).toString().trim()));
         if (gd != null) {
             showGameDetailTable(gd);
         }
@@ -524,7 +525,7 @@ public class TimesTable extends AppFrame {
         SwingUtils.addEscKeyAction(jd, "escOnGameDetails", this, logger);
         jd.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
         createGDTableRows(gd);
-        jd.setTitle(gd.forTable() +" - ESC to close");
+        jd.setTitle(gd.forTable() + " - ESC to close");
         jd.setContentPane(new JScrollPane(tblGDPanel));
         Dimension tps = tblGameDetails.getPreferredSize();
         int tw = Math.min(tps.width, (int) (this.getWidth() * 0.5));
@@ -562,15 +563,15 @@ public class TimesTable extends AppFrame {
                 + q.getOpr() + Constants.SPACE + q.getNum2();
     }
 
-    private void populateScoreTbl(Map<String, GameDetail> games, DefaultTableModel model, AppTable tbl) {
+    private void populateScoreTbl(Map<Long, GameDetail> games, DefaultTableModel model, AppTable tbl) {
         // empty table first
         model.setRowCount(0);
         tbl.emptyRowTooltips();
         AtomicInteger i = new AtomicInteger(0);
         games.forEach((k, v) -> {
             if (i.getAndIncrement() <= AppConstants.DEFAULT_TABLE_ROWS) {
-                String kk = k + "";
-                model.addRow(new String[]{kk, kk + ". " + v.forTable()});
+                String kk = i.get() + "";
+                model.addRow(new String[]{k + "", kk + ". " + v.forTable()});
                 tbl.addRowTooltip(new String[]{v.tooltip()});
             }
         });
@@ -587,23 +588,23 @@ public class TimesTable extends AppFrame {
     }
 
     private void loadGameHistory() {
-        gameHistory = new TreeMap<>(Collections.reverseOrder(Comparator.comparing(Integer::valueOf)));
+        gameHistory = new TreeMap<>(Comparator.comparing(Long::longValue).reversed());
         Properties props = Utils.readPropertyFile(AppPaths.scoresLoc.val, logger);
         props.stringPropertyNames().forEach(k -> {
                     String v = props.getProperty(k);
-                    gameHistory.put(k, extractGameDetail(v));
+                    gameHistory.put(Long.valueOf(k), extractGameDetail(k, v));
                 }
         );
         logger.info("Total [" + gameHistory.size() + "] games loaded in history.");
     }
 
-    private GameDetail extractGameDetail(String v) {
+    private GameDetail extractGameDetail(String key, String v) {
         GameDetail gd;
         if (Utils.hasValue(v)) {
             // for split from same char you need to escape
             String[] arr = v.split(AppConstants.GAME_DATA_SEP_FOR_SPLIT);
             gd = new GameDetail(Utils.convertToInt(arr[0]),
-                    Utils.convertToInt(arr[1]), Utils.convertToInt(arr[2]), arr[3]);
+                    Utils.convertToInt(arr[1]), Utils.convertToInt(arr[2]), key);
             String[] qas = arr[4].split(AppConstants.QA_SEP_FOR_SPLIT);
             Arrays.stream(qas).forEach(s -> {
                 String[] qaData = s.split(AppConstants.QA_DATA_SEP_FOR_SPLIT);
@@ -738,7 +739,9 @@ public class TimesTable extends AppFrame {
         showScreen(GameScreens.wait);
         Timer t = new Timer();
         t.scheduleAtFixedRate(new WaitTimerTask(this), 0, SEC_1);
-        TIMERS.add(t);
+        synchronized (TimesTable.class) {
+            TIMERS.add(t);
+        }
     }
 
     private void setWaitScreen() {
@@ -786,7 +789,7 @@ public class TimesTable extends AppFrame {
     }
 
     private void generateQuestions() {
-        gameDetail = new GameDetail(tableFrom, tableTo, totalQuestions, Utils.getFormattedDate());
+        gameDetail = new GameDetail(tableFrom, tableTo, totalQuestions, Utils.getNowMillis() + "");
 
         for (int i = 0; i < totalQuestions; i++) {
             int n1 = (int) (Math.random() * tableTo);
@@ -862,10 +865,8 @@ public class TimesTable extends AppFrame {
         loadHistoryTable();
         gameStatus = Status.STOP;
 
-        Arrays.stream(completeGamePanel.getComponents()).forEach(c -> c.setEnabled(false));
-
         Timer t = new Timer();
-        t.schedule(new GameCompletedTask(this), SEC_1 * 2);
+        t.schedule(new GameCompletedTask(this), 0);
         TIMERS.add(t);
     }
 
@@ -941,26 +942,21 @@ public class TimesTable extends AppFrame {
     }
 
     private void saveGameInHistory() {
+        int sz = gameHistory.size();
         if (gameDetail != null) {
             logger.info("Saving game in history as " + gameDetail.detail());
-            gameHistory.put((gameHistory.size() + 1) + "", gameDetail);
-            int sz = gameHistory.size();
+            gameHistory.put(gameDetail.getDateAsLong(), gameDetail);
             if (gameHistory.size() > HISTORY_LIMIT) {
-                gameHistory.remove("1");
-                Map<String, GameDetail> tempGameHistory = new TreeMap<>(Collections.reverseOrder(Comparator.comparing(Integer::valueOf)));
-                tempGameHistory.putAll(gameHistory);
-                gameHistory.clear();
-                for (int i = 1; i < sz; i++) {
-                    GameDetail gd = tempGameHistory.get((i + 1) + "");
-                    if (gd != null) {
-                        gameHistory.put(i + "", gd);
-                    }
-                }
+                Long oldestKey = ((Long[]) gameHistory.keySet().toArray())[0];
+                gameHistory.remove(oldestKey);
             }
-            Properties prop = new Properties();
-            gameHistory.forEach((k, v) -> prop.setProperty(k, prepareScoreCsv(v)));
-            Utils.saveProperties(prop, AppPaths.scoresLoc.val, logger);
         }
+        logger.info("Saving [" + sz + "] games.");
+        Properties prop = new Properties();
+        //last index should be 1
+        AtomicInteger i = new AtomicInteger(sz + 1);
+        gameHistory.forEach((k, v) -> prop.setProperty(k + "", prepareScoreCsv(v)));
+        Utils.saveProperties(prop, AppPaths.scoresLoc.val, logger);
     }
 
     private String prepareScoreCsv(GameDetail gameDetail) {
@@ -988,8 +984,10 @@ public class TimesTable extends AppFrame {
         return sb.toString();
     }
 
-    private void cancelTimers() {
+    private synchronized void cancelTimers() {
         TIMERS.forEach(Timer::cancel);
+        // as timer object are local, removing from list
+        TIMERS.removeAll(TIMERS);
     }
 
     private void setControlsToEnable() {

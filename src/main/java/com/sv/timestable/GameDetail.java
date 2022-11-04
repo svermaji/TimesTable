@@ -1,5 +1,7 @@
 package com.sv.timestable;
 
+import com.sv.core.Utils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -7,15 +9,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class GameDetail {
 
     private final int tableFrom, tableTo, totalQuestions;
-    private final String date;
+    private final String dateAsLong;
 
     private List<QuesAns> quesAns;
 
-    public GameDetail(int tableFrom, int tableTo, int totalQuestions, String date) {
+    public GameDetail(int tableFrom, int tableTo, int totalQuestions, String dateAsLong) {
         this.tableFrom = tableFrom;
         this.tableTo = tableTo;
         this.totalQuestions = totalQuestions;
-        this.date = date;
+        this.dateAsLong = dateAsLong;
         quesAns = new ArrayList<>();
     }
 
@@ -32,7 +34,11 @@ public final class GameDetail {
     }
 
     public String getDate() {
-        return date;
+        return Utils.getFormattedDate(Long.parseLong(dateAsLong));
+    }
+
+    public Long getDateAsLong() {
+        return Long.parseLong(dateAsLong);
     }
 
     public List<QuesAns> getQuesAns() {
@@ -63,7 +69,7 @@ public final class GameDetail {
                 "tableFrom=" + tableFrom +
                 ", tableTo=" + tableTo +
                 ", totalQuestions=" + totalQuestions +
-                ", date=" + date +
+                ", date=" + getDate() +
                 '}';
     }
 
@@ -72,7 +78,7 @@ public final class GameDetail {
                 "tableFrom=" + tableFrom +
                 ", tableTo=" + tableTo +
                 ", totalQuestions=" + totalQuestions +
-                ", date=" + date +
+                ", date=" + dateAsLong +
                 ", quesAns=" + quesAns +
                 '}';
     }
@@ -86,7 +92,7 @@ public final class GameDetail {
     }
 
     public String tooltip() {
-        return "On " + date +
+        return "On " + getDate() +
                 ", double click for details";
     }
 }
