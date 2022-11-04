@@ -524,7 +524,7 @@ public class TimesTable extends AppFrame {
         SwingUtils.addEscKeyAction(jd, "escOnGameDetails", this, logger);
         jd.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
         createGDTableRows(gd);
-        jd.setTitle(gd.forTable() +" - ESC to cancel");
+        jd.setTitle(gd.forTable() +" - ESC to close");
         jd.setContentPane(new JScrollPane(tblGDPanel));
         Dimension tps = tblGameDetails.getPreferredSize();
         int tw = Math.min(tps.width, (int) (this.getWidth() * 0.5));
