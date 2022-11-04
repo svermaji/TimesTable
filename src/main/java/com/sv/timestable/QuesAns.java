@@ -1,5 +1,8 @@
 package com.sv.timestable;
 
+import com.sv.core.Constants;
+import com.sv.core.Utils;
+
 public final class QuesAns {
 
     private final int idx, num1, num2, correctAns;
@@ -57,7 +60,7 @@ public final class QuesAns {
     }
 
     public String getTimeTaken() {
-        return timeTaken;
+        return Utils.isNullStr(timeTaken) ? Constants.DASH : timeTaken;
     }
 
     public String getOpr() {
