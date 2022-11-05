@@ -101,7 +101,8 @@ public class TimesTable extends AppFrame {
 
     private final List<Timer> TIMERS = new ArrayList<>();
     private final ColorsNFonts[] APP_COLORS = SwingUtils.getFilteredCnF(false);
-    private final CellRendererLeftAlign LEFT_RENDERER = new CellRendererLeftAlign();
+    private final CellRendererLeftAlign LEFT_RENDERER_HISTORY = new CellRendererLeftAlign();
+    private final CellRendererLeftAlign LEFT_RENDERER_GD = new CellRendererLeftAlign();
     private final String TITLE_HEADING = "Controls";
     private final int TIMES = 12, DEFAULT_TIMES = 4, ANS_MAX_LEN = 3,
             TABLE_FROM_MIN = 1, TABLE_FROM_MAX = 30, TABLE_FROM_DEFAULT = 2,
@@ -134,7 +135,9 @@ public class TimesTable extends AppFrame {
         logger.setSimpleClassName(true);
         setEchoChar('*');
 
-        LEFT_RENDERER.setShowSameTipOnRow(true);
+        // this is column value which will be searched in tooltips list in AppTable
+        LEFT_RENDERER_HISTORY.setSameTipColNum(0);
+        LEFT_RENDERER_GD.setShowSameTipOnRow(false);
 
         List<WindowChecks> windowChecks = new ArrayList<>();
         /*windowChecks.add(WindowChecks.WINDOW_ACTIVE);
@@ -473,6 +476,7 @@ public class TimesTable extends AppFrame {
 
         historyModel = SwingUtils.getTableModel(historyCols);
         tblHistory = new AppTable(historyModel);
+        tblHistory.setHighlightRowOnMouseOver(false);
         tblHistory.addEnterOnRow(new GameHistoryEnterAction(tblHistory, this));
         tblHistory.setTableHeader(new AppTableHeaderToolTip(tblHistory.getColumnModel(), historyCols));
         for (int i = 0; i < cw.length; i++) {
@@ -486,7 +490,7 @@ public class TimesTable extends AppFrame {
 
         tblHistory.addDblClickOnRow(this, null);
         // sets the popup menu for the table
-        setTable(tblHistory, historyModel);
+        setTable(tblHistory, historyModel, LEFT_RENDERER_HISTORY);
         loadHistoryTable();
 
         tblHistoryPanel = new AppPanel(new GridLayout(1, 1));
@@ -511,7 +515,7 @@ public class TimesTable extends AppFrame {
 
     private void setGameDetailTable() {
         String[] gdCols = new String[]{"#", "Question", "Answer", "Time Taken", "Status"};
-        int[] colSize = new int[]{20, 160, 100, 100, 180};
+        int[] colSize = new int[]{40, 150, 100, 100, 170};
 
         gameDetailsModel = SwingUtils.getTableModel(gdCols);
         tblGameDetails = new AppTable(gameDetailsModel);
@@ -521,9 +525,10 @@ public class TimesTable extends AppFrame {
         for (int i = 0; i < colSize.length; i++) {
             tblGameDetails.getColumnModel().getColumn(i).setMinWidth(colSize[i]);
         }
+        tblGameDetails.getColumnModel().getColumn(0).setMaxWidth(colSize[0]);
 
         // sets the popup menu for the table
-        setTable(tblGameDetails, gameDetailsModel);
+        setTable(tblGameDetails, gameDetailsModel, LEFT_RENDERER_GD);
 
         tblGDPanel = new AppPanel(new GridLayout(1, 1));
         tblGDPanel.add(new JScrollPane(tblGameDetails));
@@ -536,7 +541,7 @@ public class TimesTable extends AppFrame {
         SwingUtils.addEscKeyAction(jd, "escOnGameDetails", this, logger);
         jd.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
         createGDTableRows(gd);
-        jd.setTitle(gd.forTable() + " - ESC to close");
+        jd.setTitle(gd.forTable() + " - click on column to sort and ESC to close");
         jd.setContentPane(new JScrollPane(tblGDPanel));
         Dimension tps = tblGameDetails.getPreferredSize();
         int tw = Math.min(tps.width, (int) (this.getWidth() * 0.5));
@@ -646,12 +651,12 @@ public class TimesTable extends AppFrame {
                 tableTo + "], totalQuestions " + Utils.addBraces(totalQuestions));
     }
 
-    private void setTable(AppTable tbl, DefaultTableModel model) {
+    private void setTable(AppTable tbl, DefaultTableModel model, CellRendererLeftAlign cellRenderer) {
         tbl.setScrollProps();
         tbl.setRowHeight(appFontSize + 4);
         tbl.setBorder(EMPTY_BORDER);
         for (int i = 0; i < model.getColumnCount(); i++) {
-            tbl.getColumnModel().getColumn(i).setCellRenderer(LEFT_RENDERER);
+            tbl.getColumnModel().getColumn(i).setCellRenderer(cellRenderer);
         }
     }
 
@@ -715,10 +720,11 @@ public class TimesTable extends AppFrame {
 
         gamePanel.setBorder(SwingUtils.createLineBorder(hbg, 10));
         AppTable[] tbls = {tblHistory, tblGameDetails};
-        Arrays.stream(tbls).forEach(t -> t.setRowHeight(appFontSize + 4));
-        Arrays.stream(tbls).forEach(t ->
-                SwingUtils.applyTooltipColorNFontAllChild(t, fg, bg,
-                        SwingUtils.getNewFontSize(t.getFont(), appFontSize)));
+        Arrays.stream(tbls).forEach(t -> {
+            t.setRowHeight(appFontSize + 4);
+            SwingUtils.applyTooltipColorNFontAllChild(t, fg, bg,
+                    SwingUtils.getNewFontSize(t.getFont(), appFontSize));
+        });
         SwingUtils.applyTooltipColorNFontAllChild(totalQPanel, fg, bg,
                 SwingUtils.getNewFontSize(totalQPanel.getFont(), appFontSize));
         JComponent[] arr = {waitPanel, gameButtonsPanel, questionPanel};
