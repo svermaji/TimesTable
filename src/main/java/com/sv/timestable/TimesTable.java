@@ -10,6 +10,7 @@ import com.sv.swingui.component.*;
 import com.sv.swingui.component.table.AppTable;
 import com.sv.swingui.component.table.AppTableHeaderToolTip;
 import com.sv.swingui.component.table.CellRendererLeftAlign;
+import com.sv.timestable.action.GameHistoryEnterAction;
 import com.sv.timestable.task.AppFontChangerTask;
 import com.sv.timestable.task.GameCompletedTask;
 import com.sv.timestable.task.GameTimerTask;
@@ -471,6 +472,7 @@ public class TimesTable extends AppFrame {
 
         historyModel = SwingUtils.getTableModel(historyCols);
         tblHistory = new AppTable(historyModel);
+        tblHistory.addEnterOnRow(new GameHistoryEnterAction(tblHistory, this));
         tblHistory.setTableHeader(new AppTableHeaderToolTip(tblHistory.getColumnModel(), historyCols));
 
         tblHistory.hideFirstColumn();
@@ -507,6 +509,8 @@ public class TimesTable extends AppFrame {
         gameDetailsModel = SwingUtils.getTableModel(gdCols);
         tblGameDetails = new AppTable(gameDetailsModel);
         tblGameDetails.setTableHeader(new AppTableHeaderToolTip(tblGameDetails.getColumnModel(), gdCols));
+        tblGameDetails.addSorter(gameDetailsModel);
+
 
         for (int i = 0; i < colSize.length; i++) {
             tblGameDetails.getColumnModel().getColumn(i).setMinWidth(colSize[i]);
@@ -520,7 +524,7 @@ public class TimesTable extends AppFrame {
         tblGDPanel.setBorder(EMPTY_BORDER);
     }
 
-    private void showGameDetailTable(GameDetail gd) {
+    public void showGameDetailTable(GameDetail gd) {
         JDialog jd = new JDialog();
         SwingUtils.addEscKeyAction(jd, "escOnGameDetails", this, logger);
         jd.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
