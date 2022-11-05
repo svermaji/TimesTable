@@ -468,12 +468,19 @@ public class TimesTable extends AppFrame {
     }
 
     private void setAllTables() {
-        String[] historyCols = new String[]{"#", "History"};
+        String[] historyCols = new String[]{"", "#", "History"};
+        int[] cw = new int[]{-1, 40, 100};
 
         historyModel = SwingUtils.getTableModel(historyCols);
         tblHistory = new AppTable(historyModel);
         tblHistory.addEnterOnRow(new GameHistoryEnterAction(tblHistory, this));
         tblHistory.setTableHeader(new AppTableHeaderToolTip(tblHistory.getColumnModel(), historyCols));
+        for (int i = 0; i < cw.length; i++) {
+            tblHistory.getColumnModel().getColumn(i).setMinWidth(cw[i]);
+            if (i != cw.length - 1) {
+                tblHistory.getColumnModel().getColumn(i).setMaxWidth(cw[i]);
+            }
+        }
 
         tblHistory.hideFirstColumn();
 
@@ -503,14 +510,13 @@ public class TimesTable extends AppFrame {
     }
 
     private void setGameDetailTable() {
-        String[] gdCols = new String[]{"Question", "Answer", "Time Taken", "Status"};
-        int[] colSize = new int[]{180, 100, 100, 180};
+        String[] gdCols = new String[]{"#", "Question", "Answer", "Time Taken", "Status"};
+        int[] colSize = new int[]{20, 160, 100, 100, 180};
 
         gameDetailsModel = SwingUtils.getTableModel(gdCols);
         tblGameDetails = new AppTable(gameDetailsModel);
         tblGameDetails.setTableHeader(new AppTableHeaderToolTip(tblGameDetails.getColumnModel(), gdCols));
         tblGameDetails.addSorter(gameDetailsModel);
-
 
         for (int i = 0; i < colSize.length; i++) {
             tblGameDetails.getColumnModel().getColumn(i).setMinWidth(colSize[i]);
@@ -525,6 +531,7 @@ public class TimesTable extends AppFrame {
     }
 
     public void showGameDetailTable(GameDetail gd) {
+        tblGameDetails.getAppTableSorter().setSortKeys(null);
         JDialog jd = new JDialog();
         SwingUtils.addEscKeyAction(jd, "escOnGameDetails", this, logger);
         jd.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
@@ -547,7 +554,8 @@ public class TimesTable extends AppFrame {
     private void createGDTableRows(GameDetail gd) {
         tblGameDetails.emptyRows();
         tblGameDetails.gotoFirstRow();
-        gd.getQuesAns().forEach(q -> gameDetailsModel.addRow(new Object[]{getQStr(q),
+        gd.getQuesAns().forEach(q -> gameDetailsModel.addRow(new Object[]{
+                q.getIdx(), getQStr(q),
                 q.getUserAns() == -1 ? DASH : q.getUserAns() + "",
                 q.getTimeTaken(), q.getStatus()}));
     }
@@ -563,7 +571,7 @@ public class TimesTable extends AppFrame {
     }*/
 
     private String getQStr(QuesAns q) {
-        return q.getIdx() + ")  " + q.getNum1() + Constants.SPACE
+        return q.getNum1() + Constants.SPACE
                 + q.getOpr() + Constants.SPACE + q.getNum2();
     }
 
@@ -575,7 +583,7 @@ public class TimesTable extends AppFrame {
         games.forEach((k, v) -> {
             if (i.getAndIncrement() <= AppConstants.DEFAULT_TABLE_ROWS) {
                 String kk = i.get() + "";
-                model.addRow(new String[]{k + "", kk + ". " + v.forTable()});
+                model.addRow(new String[]{k + "", kk, v.forTable()});
                 tbl.addRowTooltip(new String[]{v.tooltip()});
             }
         });
