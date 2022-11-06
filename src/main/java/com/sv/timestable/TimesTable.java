@@ -10,6 +10,7 @@ import com.sv.swingui.component.*;
 import com.sv.swingui.component.table.AppTable;
 import com.sv.swingui.component.table.AppTableHeaderToolTip;
 import com.sv.swingui.component.table.CellRendererLeftAlign;
+import com.sv.swingui.component.table.CellRendererStringImg;
 import com.sv.timestable.action.GameHistoryEnterAction;
 import com.sv.timestable.task.AppFontChangerTask;
 import com.sv.timestable.task.GameCompletedTask;
@@ -103,6 +104,7 @@ public class TimesTable extends AppFrame {
     private final ColorsNFonts[] APP_COLORS = SwingUtils.getFilteredCnF(false);
     private final CellRendererLeftAlign LEFT_RENDERER_HISTORY = new CellRendererLeftAlign();
     private final CellRendererLeftAlign LEFT_RENDERER_GD = new CellRendererLeftAlign();
+    private CellRendererStringImg rendererStringImg;
     private final String TITLE_HEADING = "Controls";
     private final int TIMES = 12, DEFAULT_TIMES = 4, ANS_MAX_LEN = 3,
             TABLE_FROM_MIN = 1, TABLE_FROM_MAX = 30, TABLE_FROM_DEFAULT = 2,
@@ -138,6 +140,11 @@ public class TimesTable extends AppFrame {
         // this is column value which will be searched in tooltips list in AppTable
         LEFT_RENDERER_HISTORY.setSameTipColNum(0);
         LEFT_RENDERER_GD.setShowSameTipOnRow(false);
+        Map<String, String> imgPaths = new HashMap<>();
+        imgPaths.put(QuesAns.AnsStatus.correct.val, Utils.getCurrentDir() + AppPaths.correctAns.val);
+        imgPaths.put(QuesAns.AnsStatus.wrong.val, Utils.getCurrentDir() + AppPaths.wrongAns.val);
+        imgPaths.put(QuesAns.AnsStatus.notAnswered.val, Utils.getCurrentDir() + AppPaths.notAnswered.val);
+        rendererStringImg = new CellRendererStringImg(imgPaths);
 
         List<WindowChecks> windowChecks = new ArrayList<>();
         /*windowChecks.add(WindowChecks.WINDOW_ACTIVE);
@@ -529,6 +536,7 @@ public class TimesTable extends AppFrame {
 
         // sets the popup menu for the table
         setTable(tblGameDetails, gameDetailsModel, LEFT_RENDERER_GD);
+        tblGameDetails.getColumnModel().getColumn(colSize.length - 1).setCellRenderer(rendererStringImg);
 
         tblGDPanel = new AppPanel(new GridLayout(1, 1));
         tblGDPanel.add(new JScrollPane(tblGameDetails));
