@@ -31,7 +31,7 @@
 
 #### Application Images
 * Application Home screen<br>
-![Image of Yaktocat](https://github.com/svermaji/TimesTable/blob/master/app-images/app-image-home-2-nov-2022.png)
+![Image of Yaktocat](https://github.com/svermaji/TimesTable/blob/master/app-images/app-image-home-7-nov-2022.png)
 * 
 * Application Game Details screen<br>
-![Image of Yaktocat](https://github.com/svermaji/TimesTable/blob/master/app-images/app-image-details-3-nov-2022.png)
+![Image of Yaktocat](https://github.com/svermaji/TimesTable/blob/master/app-images/app-image-details-7-nov-2022.png)

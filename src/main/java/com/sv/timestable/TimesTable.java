@@ -144,7 +144,7 @@ public class TimesTable extends AppFrame {
         imgPaths.put(QuesAns.AnsStatus.correct.val, Utils.getCurrentDir() + AppPaths.correctAns.val);
         imgPaths.put(QuesAns.AnsStatus.wrong.val, Utils.getCurrentDir() + AppPaths.wrongAns.val);
         imgPaths.put(QuesAns.AnsStatus.notAnswered.val, Utils.getCurrentDir() + AppPaths.notAnswered.val);
-        rendererStringImg = new CellRendererStringImg(imgPaths);
+        rendererStringImg = new CellRendererStringImg(imgPaths, false);
 
         List<WindowChecks> windowChecks = new ArrayList<>();
         /*windowChecks.add(WindowChecks.WINDOW_ACTIVE);
@@ -521,8 +521,8 @@ public class TimesTable extends AppFrame {
     }
 
     private void setGameDetailTable() {
-        String[] gdCols = new String[]{"#", "Question", "Answer", "Time Taken", "Status"};
-        int[] colSize = new int[]{40, 150, 100, 100, 170};
+        String[] gdCols = new String[]{"#", "Question", "Answer", "Time Taken", "-", "Status"};
+        int[] colSize = new int[]{40, 150, 100, 100, 20, 150};
 
         gameDetailsModel = SwingUtils.getTableModel(gdCols);
         tblGameDetails = new AppTable(gameDetailsModel);
@@ -532,11 +532,14 @@ public class TimesTable extends AppFrame {
         for (int i = 0; i < colSize.length; i++) {
             tblGameDetails.getColumnModel().getColumn(i).setMinWidth(colSize[i]);
         }
-        tblGameDetails.getColumnModel().getColumn(0).setMaxWidth(colSize[0]);
+        int i = 0;
+        tblGameDetails.getColumnModel().getColumn(i).setMaxWidth(colSize[i]);
+        i = 4;
+        tblGameDetails.getColumnModel().getColumn(i).setMaxWidth(colSize[i]);
 
         // sets the popup menu for the table
         setTable(tblGameDetails, gameDetailsModel, LEFT_RENDERER_GD);
-        tblGameDetails.getColumnModel().getColumn(colSize.length - 1).setCellRenderer(rendererStringImg);
+        tblGameDetails.getColumnModel().getColumn(4).setCellRenderer(rendererStringImg);
 
         tblGDPanel = new AppPanel(new GridLayout(1, 1));
         tblGDPanel.add(new JScrollPane(tblGameDetails));
@@ -570,7 +573,7 @@ public class TimesTable extends AppFrame {
         gd.getQuesAns().forEach(q -> gameDetailsModel.addRow(new Object[]{
                 q.getIdx(), getQStr(q),
                 q.getUserAns() == -1 ? DASH : q.getUserAns() + "",
-                q.getTimeTaken(), q.getStatus()}));
+                q.getTimeTaken(), q.getStatus(), q.getStatus()}));
     }
 
     // need to change table model for this column
