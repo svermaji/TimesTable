@@ -9,15 +9,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class GameDetail {
 
     private final int tableFrom, tableTo, totalQuestions;
-    private final String dateAsLong;
+    private final String gamePlayedOnAsLong;
+    private String timeTakenForGame;
 
     private List<QuesAns> quesAns;
 
-    public GameDetail(int tableFrom, int tableTo, int totalQuestions, String dateAsLong) {
+    public GameDetail(int tableFrom, int tableTo, int totalQuestions, String gamePlayedOnAsLong) {
         this.tableFrom = tableFrom;
         this.tableTo = tableTo;
         this.totalQuestions = totalQuestions;
-        this.dateAsLong = dateAsLong;
+        this.gamePlayedOnAsLong = gamePlayedOnAsLong;
         quesAns = new ArrayList<>();
     }
 
@@ -33,12 +34,12 @@ public final class GameDetail {
         return totalQuestions;
     }
 
-    public String getDate() {
-        return Utils.getFormattedDate(Long.parseLong(dateAsLong));
+    public String getGamePlayedOn() {
+        return Utils.getFormattedDate(Long.parseLong(gamePlayedOnAsLong));
     }
 
-    public Long getDateAsLong() {
-        return Long.parseLong(dateAsLong);
+    public Long getGamePlayedOnAsLong() {
+        return Long.parseLong(gamePlayedOnAsLong);
     }
 
     public List<QuesAns> getQuesAns() {
@@ -53,6 +54,14 @@ public final class GameDetail {
         quesAns.add(q);
     }
 
+    public String getTimeTakenForGame() {
+        return timeTakenForGame;
+    }
+
+    public void setTimeTakenForGame(String timeTakenForGame) {
+        this.timeTakenForGame = timeTakenForGame;
+    }
+
     private int getCorrectAnsCnt() {
         AtomicInteger c = new AtomicInteger();
         quesAns.forEach(q -> {
@@ -65,34 +74,36 @@ public final class GameDetail {
 
     @Override
     public String toString() {
-        return "Question{" +
+        return "GameDetail{" +
                 "tableFrom=" + tableFrom +
                 ", tableTo=" + tableTo +
                 ", totalQuestions=" + totalQuestions +
-                ", date=" + getDate() +
+                ", gamePlayedOnAsLong='" + gamePlayedOnAsLong + '\'' +
+                ", timeTakenForGame='" + timeTakenForGame + '\'' +
                 '}';
     }
 
     public String detail() {
-        return "Question{" +
+        return "GameDetail{" +
                 "tableFrom=" + tableFrom +
                 ", tableTo=" + tableTo +
                 ", totalQuestions=" + totalQuestions +
-                ", date=" + dateAsLong +
+                ", gamePlayedOnAsLong='" + gamePlayedOnAsLong + '\'' +
+                ", timeTakenForGame='" + timeTakenForGame + '\'' +
                 ", quesAns=" + quesAns +
                 '}';
     }
 
     public String forTable() {
-        return "Score [" + getCorrectAnsCnt() +
+        return "Score: " + getCorrectAnsCnt() +
                 "/" + totalQuestions +
-                "], Tables [" + tableFrom +
-                " to " + tableTo +
-                "]";
+                ", Tables: " + tableFrom +
+                "-" + tableTo +
+                " in " + timeTakenForGame;
     }
 
     public String tooltip() {
-        return "On " + getDate() +
+        return "On " + getGamePlayedOn() +
                 ", double click for details";
     }
 }

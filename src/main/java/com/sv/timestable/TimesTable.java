@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.sv.core.Constants.*;
 import static com.sv.swingui.UIConstants.*;
+import static com.sv.timestable.AppConstants.GAME_TIME_SEC;
 
 /**
  * Java Game for Times Table practise
@@ -633,7 +634,9 @@ public class TimesTable extends AppFrame {
             String[] arr = v.split(AppConstants.GAME_DATA_SEP_FOR_SPLIT);
             gd = new GameDetail(Utils.convertToInt(arr[0]),
                     Utils.convertToInt(arr[1]), Utils.convertToInt(arr[2]), key);
-            String[] qas = arr[4].split(AppConstants.QA_SEP_FOR_SPLIT);
+            // arr[3] is formatted string "gamePlayedOn", so skipping it
+            gd.setTimeTakenForGame(arr[4]);
+            String[] qas = arr[5].split(AppConstants.QA_SEP_FOR_SPLIT);
             Arrays.stream(qas).forEach(s -> {
                 String[] qaData = s.split(AppConstants.QA_DATA_SEP_FOR_SPLIT);
                 QuesAns q = new QuesAns(Utils.convertToInt(qaData[0]),
@@ -848,7 +851,7 @@ public class TimesTable extends AppFrame {
         gameAccuracy = 0;
         totalCorrectPairs = 0;
         gameWaitTime = AppConstants.GAME_WAIT_TIME_SEC;
-        gameTime = AppConstants.GAME_TIME_SEC;
+        gameTime = GAME_TIME_SEC;
         gameStatus = Status.START;
         gameScore = 0;
         updateGameTime();
@@ -864,6 +867,7 @@ public class TimesTable extends AppFrame {
                 totalCorrectPairs++;
             }
         });
+        gameDetail.setTimeTakenForGame(Utils.formatTimeWithUnits(GAME_TIME_SEC - gameTime));
         gameAccuracy = (totalCorrectPairs * 100) / gameDetail.getTotalQuestions();
         String msg = "Keep Practicing !!";
         if (gameAccuracy > 40 && gameAccuracy > 60) {
@@ -909,7 +913,7 @@ public class TimesTable extends AppFrame {
         gameStatus = Status.STOP;
         enableControls();
         cancelTimers();
-        gameTime = AppConstants.GAME_TIME_SEC;
+        gameTime = GAME_TIME_SEC;
         gameScore = 0;
         updateGameTime();
         showScreen(GameScreens.help);
@@ -974,7 +978,7 @@ public class TimesTable extends AppFrame {
         int sz = gameHistory.size();
         if (gameDetail != null) {
             logger.info("Saving game in history as " + gameDetail.detail());
-            gameHistory.put(gameDetail.getDateAsLong(), gameDetail);
+            gameHistory.put(gameDetail.getGamePlayedOnAsLong(), gameDetail);
             if (gameHistory.size() > HISTORY_LIMIT) {
                 Long oldestKey = ((Long[]) gameHistory.keySet().toArray())[0];
                 gameHistory.remove(oldestKey);
@@ -996,7 +1000,9 @@ public class TimesTable extends AppFrame {
                 .append(AppConstants.GAME_DATA_SEP)
                 .append(gameDetail.getTotalQuestions())
                 .append(AppConstants.GAME_DATA_SEP)
-                .append(gameDetail.getDate())
+                .append(gameDetail.getGamePlayedOn())
+                .append(AppConstants.GAME_DATA_SEP)
+                .append(gameDetail.getTimeTakenForGame())
                 .append(AppConstants.GAME_DATA_SEP);
 
         gameDetail.getQuesAns().forEach(qa ->
